@@ -1,12 +1,8 @@
 package com.example.study;
 
+import com.example.study.events.*;
 import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.event.*;
-import org.springframework.context.event.*;
-import org.springframework.context.event.EventListener;
-
-import java.util.*;
 
 /* 루트 패키지에 위치
  *
@@ -19,9 +15,7 @@ import java.util.*;
 @SpringBootApplication
 public class StudyApplication {
 
-	/*
-	 * run()
-	 *
+	/* run()
 	 * class path 기준 ApplicationContext 클래스 인스턴스 생성
 	 *
 	 * 우선순위 1위인 CommandLinePropertySource 를 등록 후 명령행 인자를 스프링 프로퍼티로 읽음
@@ -38,12 +32,22 @@ public class StudyApplication {
 		springApplication.setWebApplicationType(WebApplicationType.REACTIVE);
 
 		/* addListeners 는 가변인자를 받기 때문에 여러개 등록 가능
-		 이 방식은 SpringApplication 의 소스코드 변경을 유발하기에
-		 Spring.factories 프로퍼티 파일을 사용해 커스텀 리스너 추가 가능
-		*/
+		 * 이 방식은 SpringApplication 의 소스코드 변경을 유발하기에
+		 * Spring.factories 프로퍼티 파일을 사용해 커스텀 리스너 추가 가능
+		 */
 		springApplication.addListeners(
-				new ApplicationStartingEventListner()
+//				new ApplicationStartingEventListner()
+				new ApplicationContextInitializedEventListener(),
+				new ApplicationEnvironmentPreparedEventListener(),
+				new ApplicationFailedEventListener(),
+				new ApplicationPreparedEventListener(),
+				new ApplicationReadyEventListener(),
+				new ApplicationStartedEventListener(),
+				new ApplicationStartingEventListener(),
+				new ContextRefreshedEventListener(),
+				new WebServerInitializedEventListener()
 		);
+
 		springApplication.run(args);
 	}
 
