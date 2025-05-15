@@ -1,5 +1,6 @@
 .DS_STORE
-.idea/
+.idea
+.gradle
 build/
 
 # Compiled class file
