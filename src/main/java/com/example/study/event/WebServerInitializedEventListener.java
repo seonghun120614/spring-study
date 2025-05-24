@@ -1,4 +1,4 @@
-package com.example.study.events;
+package com.example.study.event;
 
 import org.springframework.boot.web.context.*;
 

@@ -1,7 +1,7 @@
 package com.example.study;
 
 import com.example.study.config.*;
-import com.example.study.events.*;
+import com.example.study.event.*;
 import com.example.study.service.*;
 import org.slf4j.*;
 import org.springframework.boot.*;
@@ -56,25 +56,28 @@ public class StudyApplication
 		 이 방식은 SpringApplication 의 소스코드 변경을 유발하기에
 		 Spring.factories 프로퍼티 파일을 사용해 커스텀 리스너 추가 가능
 		 */
-		springApplication.addListeners(
-				new ApplicationContextInitializedEventListener(),
-				new ApplicationEnvironmentPreparedEventListener(),
-				new ApplicationFailedEventListener(), // 실행 안되는게 맞음
-				new ApplicationPreparedEventListener(),
-				new ApplicationReadyEventListener(),
-				new ApplicationStartedEventListener(),
-				new ApplicationStartingEventListener(), // Logging 이 안보이는게 맞음
-				new ContextRefreshedEventListener(),
-				new WebServerInitializedEventListener() // 웹서버는 아니라서 logging 안보임
-		);
+//		springApplication.addListeners(
+//				new ApplicationContextInitializedEventListener(),
+//				new ApplicationEnvironmentPreparedEventListener(),
+//				new ApplicationFailedEventListener(), // 실행 안되는게 맞음
+//				new ApplicationPreparedEventListener(),
+//				new ApplicationReadyEventListener(),
+//				new ApplicationStartedEventListener(),
+//				new ApplicationStartingEventListener(), // Logging 이 안보이는게 맞음
+//				new ContextRefreshedEventListener(),
+//				new WebServerInitializedEventListener() // 웹서버는 아니라서 logging 안보임
+//		);
 
 		ConfigurableApplicationContext applicationContext =
 				springApplication.run(args);
 
+		// Environment 안에 모든 property 가 있음
 		Environment env = applicationContext.getBean(Environment.class);
 		// 값 읽는 방법 - log.info("Timeout : " + env.getProperty("app.timeout"));
+//		logger.info("-" + env.getProperty("app.sbip.ct.name"));
 
 		DbConfiguration dbConfiguration = applicationContext.getBean(DbConfiguration.class);
+//		logger.info(String.valueOf(dbConfiguration));
 
 		AppService appService = applicationContext.getBean(AppService.class);
 
