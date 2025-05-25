@@ -17,26 +17,22 @@ repositories {
 	mavenCentral()
 }
 
+configurations.all {
+	exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+}
+
 dependencies {
 	// 기본 Spring Boot 스타터에서 로깅은 Logback 이라 제외 필요
-	implementation('org.springframework.boot:spring-boot-starter-web') {
-		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-	}// SERVLET, REACTIVE, NONE
+	implementation 'org.springframework.boot:spring-boot-starter-web' // SERVLET, REACTIVE, NONE
 
 	// 기본 Spring Boot 스타터에서 로깅은 Logback 이라 제외 필요
-	implementation('org.springframework.boot:spring-boot-starter') {
-		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-	}
+	implementation 'org.springframework.boot:spring-boot-starter'
 
 	// log4j2
-	implementation('org.springframework.boot:spring-boot-starter-log4j2') {
-		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-	}
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 
 	// Bean Validation
-	implementation('org.springframework.boot:spring-boot-starter-validation') {
-		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-	}
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 	// Lombok - getter, setter, toString, Constructor 자동 생성
 	compileOnly 'org.projectlombok:lombok:1.18.30'
@@ -44,6 +40,20 @@ dependencies {
 
 	// passay - password 규칙
 	implementation 'org.passay:passay:1.6.3'
+
+	// JPA 추가
+	implementation('org.springframework.boot:spring-boot-starter-data-jpa') {
+		exclude group: 'com.zaxxer', module: 'HikariCP'
+	}
+	implementation 'org.apache.tomcat:tomcat-jdbc:10.1.20' // 커넥션 풀 tomcat jdbc 사용
+
+	// RDBMS Source 의존성
+	runtimeOnly 'com.h2database:h2' // 스코프를 runtime 으로만 지정하여 컴파일에서는 사용 안하고, 런타임에서만 사용
+
+	// NoSQL Source 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	// 내장 mongodb
+//	implementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.11.0'
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'junit', module: 'junit' // JUnit 4 제외
@@ -53,6 +63,9 @@ dependencies {
 
 	testImplementation 'org.junit.jupiter:junit-jupiter-api'
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+	// 내장 mongodb 사용
+//	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.18.0'
 
 	// log4j-to-slf4j는 제거해야 함 (충돌 발생하므로)
 	// log4j-slf4j2-impl 만 유지하면 SLF4J API도 Log4j2에서 처리 가능
