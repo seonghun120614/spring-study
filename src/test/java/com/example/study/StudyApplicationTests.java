@@ -4,14 +4,13 @@ import com.example.study.entity.*;
 import com.example.study.repository.*;
 import com.mongodb.*;
 import org.apache.tomcat.jdbc.pool.*;
+import org.assertj.core.api.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.*;
 import org.springframework.boot.test.context.*;
+import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.test.annotation.*;
-import org.springframework.test.context.jdbc.*;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.*;
@@ -28,8 +27,6 @@ class StudyApplicationTests {
 	private MongoTemplate mongoTemplate; // 다양한 MongoDB 연산을 수행할 수 있도록 함, 헬퍼 클래스
 	@Autowired
 	private CourseRepository courseRepository;
-	@Autowired
-	private CustomizedCourseRepository customizedCourseRepository;
 
 	@Test
 	public void givenDatasourceAvailableWhenAccessDetailsThenExpectDetails()
@@ -158,8 +155,93 @@ class StudyApplicationTests {
 				4,
 				"Spring Boot gives all the power of the Spring Framework without all of the complexities"
 		);
-		customizedCourseRepository.save(course);
+		courseRepository.save(course);
 
-		assertThat(Collections.singletonList(customizedCourseRepository.findAll()).size()).isEqualTo(1);
+		assertThat(Collections.singletonList(courseRepository.findAll()).size()).isEqualTo(1);
+	}
+
+	/**
+	 * data 가 sql 에 작성되어 있기 때문에 ddl-auto 를 none 으로 해주어야 함
+	 * 안그럼 0개임
+	 */
+	@Test
+	void givenDataAvailableWhenLoadFirstPageThenGetFiveRecords() {
+		// PageRequest.of 를 통해 페이지 번호, 한 페이지에 나타날 데이터 개수를 지정 할 수 있음.
+		// 반환된 객체는 Pageable 로 반환 여기서 next, previousOrFirst 를 통해 다음 페이지
+		// 이전 페이지로 갈 수 있음
+		Pageable pageable = PageRequest.of(0, 5);
+
+		// findAll 에 pageable 을 넣으면 해당 페이지의 데이터를 전부 조회
+		assertThat(courseRepository.findAll(pageable)).hasSize(5);
+		assertThat(pageable.getPageNumber()).isEqualTo(0);
+
+		Pageable nextPageable = pageable.next();
+		assertThat(courseRepository.findAll(nextPageable)).hasSize(4);
+		assertThat(nextPageable.getPageNumber()).isEqualTo(1);
+
+		Pageable last = pageable.previousOrFirst();
+		assertThat(courseRepository.findAll(last)).hasSize(5);
+		assertThat(last.getPageNumber()).isEqualTo(0);
+
+		Pageable first = pageable.previousOrFirst();
+		assertThat(courseRepository.findAll(first)).hasSize(5);
+		assertThat(first.getPageNumber()).isEqualTo(0);
+	}
+
+	/**
+	 * org.springframework.data.domain 에 있는
+	 * Sort 를 사용하여 Pagination 을 다르게 바꿀 수도 있다.
+	 */
+	@Test
+	public void givenDataAvailableWhenSortsFirstPageThenGetSortedData() {
+		// 여러개의 order 를 집어넣는 것도 가능
+		Pageable pageable = PageRequest.of(0, 5, Sort.by(
+				Sort.Order.asc("Name"))
+		);
+
+		/*
+		  Condition 은 추상 조건 표현 객체로 matches 를 구현해야 함.
+		  is(Condition), has(Condition)과 같은 메서드랑 함께 사용되고,
+		  더 가독성을 높이게 해준다.
+ 		 */
+		Condition<Course> sortedFirstCourseCondition = new Condition<>() {
+			@Override
+			public boolean matches(Course course) {
+				return course.getId() == 4
+						&& course.getName().equals("Fully Reactive: Spring, Kotlin, and JavaFX Playing Together");
+			}
+		};
+
+		// has 사용
+		assertThat(courseRepository.findAll(pageable)).first()
+				.has(sortedFirstCourseCondition);
+	}
+
+	/*
+	 Sort 에는 descending, ascending 등 다양한 메소드가 있기 때문에 적절히 정렬시켜서 사용하면 된다.
+	 and, reverse, enum 으로는 Direction 인 ASC, DESC 를 가진다.
+	 */
+	@Test
+	public void givenDataAvailableWhenApplyCustomSortThenGetSortedResult() {
+		Pageable customSortPageable = PageRequest.of(0, 5,
+				Sort.by("Rating").descending()
+						.and(Sort.by("Name")));
+
+		Condition customSortFirstCourseCondition = new Condition<Course>() {
+			@Override
+			public boolean matches(Course course) {
+				return course.getId() == 5
+						&& course.getName().equals("Getting Started with Spring Cloud Kubernetes");
+			}
+		};
+
+		assertThat(courseRepository.findAll(customSortPageable)).first()
+				.has(customSortFirstCourseCondition);
+	}
+
+	@Test
+	public void givenCoursesCreatedWhenLoadCoursesBySpringCategoryThenExpectedThreeCourses() {
+		assertThat(courseRepository
+				.findAllByCategoryAndRating("Spring", 4)).hasSize(2);
 	}
 }

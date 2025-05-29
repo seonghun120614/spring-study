@@ -4,4 +4,8 @@ VALUES
     (2, 'Getting Started with Spring Security DSL', 'Spring', 3, 'Learn Spring Security DSL in easy steps'),
     (3, 'Scalable, Cloud Negative Data Applicaitons', 'Spring', 4, 'Manage Cloud based applications with Spring boot'),
     (4, 'Fully Reactive: Spring, Kotlin, and JavaFX Playing Together', 'Spring', 3, 'Unleash the power of Reactive Spring with Kotlin and Spring Boot'),
-    (5, 'Getting Started with Spring Cloud Kubernetes', 'Spring', 5, 'Master Spring Boot application deployment with Kubernetes');
+    (5, 'Getting Started with Spring Cloud Kubernetes', 'Spring', 5, 'Master Spring Boot application deployment with Kubernetes'),
+    (6, 'Hello', 'spring', 3, 'test'),
+    (7, 'Hello', 'spring', 3, 'test'),
+    (8, 'Hello', 'spring', 3, 'test'),
+    (9, 'Hello', 'spring', 3, 'test');

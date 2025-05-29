@@ -26,11 +26,23 @@ record 자체는 불변성(final)을 지니기 때문에 생명주기의 관리�
 @Data
 @Entity
 @Table(name = "COURSES")
+//@NamedQueries({
+//        // 이렇게 정의하는게 필수는 아니지만 [엔티티명].[CustomQuery] 로 하는게 관례적
+//        @NamedQuery(name = "Course.findAllByRating",
+//                query = "select c from Course c where c.rating=?1"),
+//        @NamedQuery(name = "Course.FindAllByCategoryAndRating",
+//                query = "select c from Course c where c.category=?1 and c.rating=?2"),
+//})
 public class Course {
         @Id
         @Column(name = "ID")
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private long id;
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
+        /*
+         기본형 long은 null을 가질 수 없기 때문에 GeneratedValue는 여기에 값이 들어있는 줄 알고 자동 생성을 안해줌.
+         따라서 ID 가 없는 Course 객체를 생성하고 싶다면 Long 으로 선언해줘야 나중에 new 를 통한 생성 시에도 GenertedValue
+         가 동작을 하여 자동 생성을 시킴.
+         */
+        private Long id;
 
         @Column(name = "NAME")
         @NotEmpty

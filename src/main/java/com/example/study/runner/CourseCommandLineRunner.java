@@ -17,7 +17,7 @@ public class CourseCommandLineRunner implements CommandLineRunner {
         Logger logger = LoggerFactory.getLogger(getClass());
 
         Course course = new Course();
-        course.setId(1);
+//        course.setId(1);
         course.setRating(0);
 
         // Validator 객체 획득
