@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.util.*;
+
 /*
 비즈니스 엔티티는 record로 구현하기에 적절치 않음
 record 자체는 불변성(final)을 지니기 때문에 생명주기의 관리에
@@ -24,7 +26,7 @@ record 자체는 불변성(final)을 지니기 때문에 생명주기의 관리�
  */
 @NoArgsConstructor
 @Data
-@Entity
+@Entity(name = "Course") // 단수로 해주는게 좋음
 @Table(name = "COURSES")
 //@NamedQueries({
 //        // 이렇게 정의하는게 필수는 아니지만 [엔티티명].[CustomQuery] 로 하는게 관례적
@@ -60,6 +62,10 @@ public class Course {
         @Column(name = "DESCRIPTION")
         @NotEmpty
         String description;
+
+        // author 안의 courses 필드 참조
+        @ManyToMany(mappedBy = "courses") // 속성이 들어가야 함, 즉 소유자의 필드명과 일치해야함
+        private Set<Author> authors = new HashSet<>();
 
         public Course(String name, String category, int rating, String description) {
                 this.name = name;

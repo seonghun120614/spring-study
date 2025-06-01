@@ -22,6 +22,11 @@ configurations.all {
 }
 
 dependencies {
+	//JPA 아닌 MongoDB 사용 시 querydsl-mongodb 사용
+	implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta' // JPA 기반 QueryDSL 사용
+	annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta' // Q 클래스 생성
+	annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+
 	// 기본 Spring Boot 스타터에서 로깅은 Logback 이라 제외 필요
 	implementation 'org.springframework.boot:spring-boot-starter-web' // SERVLET, REACTIVE, NONE
 
@@ -71,6 +76,25 @@ dependencies {
 	// log4j-slf4j2-impl 만 유지하면 SLF4J API도 Log4j2에서 처리 가능
 	// SLF4J API -> log4j2로 연결
 	runtimeOnly 'org.apache.logging.log4j:log4j-slf4j2-impl'
+}
+// Q 클래스들이 생성될 디렉토리 지정
+def querydslDir = "$buildDir/generated/querydsl"
+
+/*
+ main 소스 세트에 querydslDir 을 추가함
+ build/generated/querydsl 경로에서 생성된 Q-타입 클래스들을
+ 정상적인 자바 소스처럼 인식, 컴파일 대상으로 포함
+ 이를 안하면 Q 클래스가 클래스패스에 포함되지 않아 컴파일 오류가 날 수 있음
+ */
+sourceSets {
+	main.java.srcDir querydslDir
+}
+/*
+ Java 컴파일 시 사용되는 annotationProcessor 가 생성한
+ 파일의 저장 위치를 querydslDir 로 명시
+ */
+tasks.withType(JavaCompile) {
+	options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
 }
 
 tasks.named('test') {

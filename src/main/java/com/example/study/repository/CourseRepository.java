@@ -3,13 +3,13 @@ package com.example.study.repository;
 import com.example.study.entity.*;
 import jakarta.transaction.*;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.querydsl.*;
 import org.springframework.data.repository.*;
 import org.springframework.data.repository.query.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-//
 /**
  * save, findAll 메서드 상속.
  * 다른 기본 메서드 들은 못사용
@@ -18,13 +18,19 @@ import java.util.*;
  * 커스텀 쿼리 메서드를 추가 가능
  */
 @Repository
-public interface CourseRepository
-        extends PagingAndSortingRepository<Course, Long> {
+public interface CourseRepository extends
+        PagingAndSortingRepository<Course, Long>,
+        // CrudRepository 에 있던 메서드들을 오버로딩을 하여 querydsl 기능을 사용할 수 있게 함
+        QuerydslPredicateExecutor<Course> {
+
+    // Projection 수행
+    Iterable<DescriptionOnly> getCourseByName(String name);
+
     // 첫번째 파라미터를 가르킴
     @Query("select c from Course c where c.category=?1")
     Iterable<Course> findAllByCategory(String category);
     // @Param 을 통해 @Query 에서 해당 인자의 명을 :를 통해 사용할 수 있음
-    @Query("select c from Course c where c.category:=category and c.rating>:rating")
+    @Query("select c from Course c where c.category=:category and c.rating>:rating")
     Iterable<Course> findAllByCategoryAndRatingGreaterThan(
             @Param("category") String category,
             @Param("rating") int rating
