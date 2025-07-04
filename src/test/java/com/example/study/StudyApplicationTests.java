@@ -1,39 +1,23 @@
 package com.example.study;
 
-import com.example.study.entity.*;
-import com.example.study.repository.*;
-import com.mongodb.*;
-import com.querydsl.core.types.*;
-import jakarta.persistence.*;
-import jakarta.persistence.criteria.*;
 import org.apache.tomcat.jdbc.pool.*;
-import org.assertj.core.api.*;
-import org.assertj.core.util.*;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.*;
-import org.springframework.data.domain.*;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-
 
 import java.sql.*;
-import java.util.*;
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 class StudyApplicationTests {
 	@Autowired
 	private DataSource dataSource;
-	@Autowired
-	private MongoTemplate mongoTemplate; // 다양한 MongoDB 연산을 수행할 수 있도록 함, 헬퍼 클래스
-	@Autowired
-	private CourseRepository courseRepository;
+//	@Autowired
+//	private MongoTemplate mongoTemplate; // 다양한 MongoDB 연산을 수행할 수 있도록 함, 헬퍼 클래스
+//	@Autowired
+//	private CourseRepository courseRepository;
 
 	/*
 	 Criteria API - Entity manager 주입(CriteriaBuilder 인스턴스 생성키 위함)
@@ -41,42 +25,34 @@ class StudyApplicationTests {
 	 퍼시스턴스 컨텍스트에 의해 관리된다. CriteriaBuilder 인스턴스를 사용 시 Criteria API
 	 기반 쿼리, 조회, 정렬 등을 사용할 수 있다. 자동 주입 됨
 	 */
-	@PersistenceContext
-	private EntityManager entityManager;
-	@Autowired
-	private AuthorRepository authorRepository;
+//	@PersistenceContext
+//	private EntityManager entityManager;
 
 	@Test
-	public void whenCountAllCoursesThenExpectFiveCourses() {
-		assertThat(authorRepository.getAuthorCourseInfo(2)).hasSize(3);
+	public void givenDatasourceAvailableWhenAccessDetailsThenExpectDetails()
+			throws SQLException {
+		assertThat(dataSource.getClass().getName())
+				.isEqualTo("org.apache.tomcat.jdbc.pool.DataSource");
+		assertThat(dataSource.getConnection().getMetaData().getDatabaseProductName())
+				.isEqualTo("MySQL");
+//		assertThat(dataSource.getConnection().getMetaData().getDatabaseProductName())
+//				.isEqualTo("PostgreSQL");
 	}
 
 	@Test
-	public void givenCoursesWhenGetCoursesByAuthorJoinTable() {
-
-		Course rapidSpringBootCourse =
-				new Course(
-						"Rapid Spring Boot Application Development",
-						"Spring",
-						4,
-						"Spring Boot gives all the power of the Spring Framework without all of the complexity"
-				);
-
-		Course springSecurityDslCourse =
-				new Course(
-						"Getting Started with Spring Security DSL",
-						"Spring",
-						5,
-						"Learn Spring Security DSL in easy steps"
-				);
-
-		Author author1 = new Author(
-				"John Doe",
-				"Author of several Spring Boot courses"
-		);
-
-		author1.getCourses().addAll(Arrays.asList(rapidSpringBootCourse, springSecurityDslCourse));
+	public void givenUserWhenGetUserNameByIdThenGetUser() throws Exception {
+		try(
+				Connection cn = dataSource.getConnection();
+				PreparedStatement ps = cn.prepareStatement("SELECT name FROM USERS WHERE id=1");
+				ResultSet rs = ps.executeQuery();
+		) {
+			if (rs.next())
+				assertThat("Alice").isEqualTo(rs.getString("name"));
+			else
+				fail("No user found with id=1");
+		}
 	}
+
 //	@Test
 //	public void givenACourseAvailableWhenGetCourseByNameThenGetCourseDescription() {
 //		Iterable<DescriptionOnly> result =
